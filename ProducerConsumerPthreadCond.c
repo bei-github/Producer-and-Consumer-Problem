@@ -12,29 +12,33 @@ pthread_cond_t cond_id1, cond_id2;
 
 void* produce() {
 	int data = rand() % 1000;
-	pthread_mutex_lock(&mutex_id);
-	while (full) {
-		pthread_cond_wait(&cond_id1, &mutex_id);
+	while (1) {
+		pthread_mutex_lock(&mutex_id);
+		while (full) {
+			pthread_cond_wait(&cond_id1, &mutex_id);
+		}
+		mem[wPtr] = data;
+		wPtr = (wPtr + 1) % 10;
+		empty = false;
+		full = (wPtr == rPtr);
+		pthread_mutex_unlock(&mutex_id);
+		pthread_cond_broadcast(&cond_id2);
 	}
-	mem[wPtr] = data;
-	wPtr = (wPtr + 1) % 10;
-	empty = false;
-	full = (wPtr == rPtr);
-	pthread_mutex_unlock(&mutex_id);
-	pthread_cond_broadcast(&cond_id2);
 }
 
 void* consume() {
-	pthread_mutex_lock(&mutex_id);
-	while (empty) {
-		pthread_cond_wait(&cond_id2, &mutex_id);
+	while (1) {
+		pthread_mutex_lock(&mutex_id);
+		while (empty) {
+			pthread_cond_wait(&cond_id2, &mutex_id);
+		}
+		printf("data is %d \n", mem[rPtr]);
+		rPtr = (rPtr + 1) % 10;
+		full = false;
+		empty = (rPtr == wptr);
+		pthread_mutex_unlock(&mutex_id);
+		pthread_cond_broadcast(&cond_id1);
 	}
-	printf("data is %d \n", mem[rPtr]);
-	rPtr = (rPtr + 1) % 10;
-	full = false;
-	empty = (rPtr == wptr);
-	pthread_mutex_unlock(&mutex_id);
-	pthread_cond_broadcast(&cond_id1);
 }
 
 
