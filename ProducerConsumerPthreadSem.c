@@ -11,8 +11,8 @@ pthread_mutex_t mutex_id;
 sem_t semFull, semEmpty;
 
 void* produce() {
-	int data = rand() % 1000;
 	while (1) {
+		int data = rand() % 1000;
 		pthread_mutex_lock(&mutex_id);
 		sem_wait(&semEmpty);
 		mem[count] = data;
