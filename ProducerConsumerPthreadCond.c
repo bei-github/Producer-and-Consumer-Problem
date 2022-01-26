@@ -11,8 +11,8 @@ pthread_mutex_t mutex_id;
 pthread_cond_t cond_id1, cond_id2;
 
 void* produce() {
-	int data = rand() % 1000;
 	while (1) {
+		int data = rand() % 1000;
 		pthread_mutex_lock(&mutex_id);
 		while (full) {
 			pthread_cond_wait(&cond_id1, &mutex_id);
